@@ -1,0 +1,52 @@
+@keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0%, 100% { opacity: .4; } 50% { opacity: 1; } }
+@keyframes scanline { 0% { top: -10%; } 100% { top: 110%; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes floatY { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes gridDrift { from { background-position: 0 0; } to { background-position: 60px 60px; } }
+@keyframes countUp { from { opacity: 0; } to { opacity: 1; } }
+
+.fade-up { animation: slideIn .5s ease both; }
+
+.hero-visual {
+  position: relative; border-radius: 20px; overflow: hidden;
+  background:
+    linear-gradient(rgba(0,229,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.05) 1px, transparent 1px),
+    radial-gradient(circle at 50% 40%, rgba(0,229,255,0.12), transparent 60%);
+  background-size: 32px 32px, 32px 32px, 100% 100%;
+  animation: gridDrift 6s linear infinite;
+  border: 1px solid var(--panel-border);
+  min-height: 340px;
+}
+.hero-visual .scan-line {
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  box-shadow: 0 0 20px 4px rgba(0,229,255,0.6);
+  animation: scanline 3s ease-in-out infinite;
+}
+.hero-visual .face-frame {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+}
+.hero-visual .face-frame svg { animation: floatY 5s ease-in-out infinite; }
+
+.spinner {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 3px solid rgba(0,229,255,0.2); border-top-color: var(--accent);
+  animation: spin .8s linear infinite;
+}
+
+.pulse-dot { animation: pulse 1.6s ease-in-out infinite; }
+
+.analyzing-radar {
+  width: 160px; height: 160px; border-radius: 50%; margin: 0 auto;
+  position: relative;
+  background: radial-gradient(circle, rgba(0,229,255,0.15), transparent 70%);
+  border: 1px solid var(--panel-border);
+}
+.analyzing-radar::before {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(var(--accent), transparent 30%);
+  animation: spin 1.4s linear infinite;
+  mask: radial-gradient(circle, transparent 55%, black 56%);
+}

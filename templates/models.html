@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Models — TruthLens{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Under the hood</span>
+      <h2>Model architectures used across deepfake detection</h2>
+      <p>TruthLens's core video pipeline fuses a Vision Transformer with temporal self-attention and a ResNet18 Mel-spectrogram audio encoder. Its image and audio-only pipelines, and its ensemble/comparison mode, draw on this wider set of architectures.</p>
+    </div>
+    {% for group, items in model_groups.items %}
+    <h3 style="margin-top:36px;">{{ group }}</h3>
+    <div class="grid grid-3">
+      {% for m in items %}
+      <div class="panel card">
+        <h4 style="margin-top:0;">{{ m.name }}</h4>
+        <p>{{ m.summary }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

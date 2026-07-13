@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Scan Result - TruthLens{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width:860px;">
+    {% if scan.status != "complete" %}
+      <div class="panel card text-center" id="processing-panel" data-status-url="{% url 'detection:scan_status' scan.id %}">
+        <div class="analyzing-radar"></div>
+        <h3 style="margin-top:24px;">Analyzing your {{ scan.get_media_type_display|lower }}...</h3>
+        <p id="status-copy">Running forensic feature checks and model-compatible signal fusion.</p>
+        <span class="badge badge-uncertain pulse-dot" id="status-badge">{{ scan.get_status_display }}</span>
+      </div>
+      <script>
+        const panel = document.getElementById('processing-panel');
+        const badge = document.getElementById('status-badge');
+        const copy = document.getElementById('status-copy');
+        async function pollStatus() {
+          const response = await fetch(panel.dataset.statusUrl, {headers: {'Accept': 'application/json'}});
+          const data = await response.json();
+          badge.textContent = data.status_label;
+          if (data.status === 'complete' || data.status === 'failed') window.location.reload();
+          else copy.textContent = 'Still processing. You can leave this page and return from your dashboard.';
+        }
+        setInterval(pollStatus, 2500);
+      </script>
+    {% else %}
+      <div class="panel card glow-border">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+          <div>
+            <span class="eyebrow">Forensic result</span>
+            <h2 style="margin-top:6px;">{{ scan.get_media_type_display }} Analysis</h2>
+            <p style="font-size:0.82rem; margin-top:4px;">{{ scan.original_filename }}</p>
+          </div>
+          <span class="badge badge-{{ scan.verdict }}">{{ scan.verdict }}</span>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:28px; margin:26px 0; flex-wrap:wrap;">
+          <div style="position:relative; width:130px; height:130px;">
+            <svg width="130" height="130" viewBox="0 0 130 130">
+              <circle cx="65" cy="65" r="55" stroke="rgba(255,255,255,0.08)" stroke-width="12" fill="none"/>
+              <circle cx="65" cy="65" r="55" stroke="{% if scan.verdict == 'fake' %}#ff4d6d{% elif scan.verdict == 'real' %}#2ee6a8{% else %}#ffb648{% endif %}"
+                stroke-width="12" fill="none" stroke-linecap="round"
+                stroke-dasharray="{{ scan.confidence|floatformat:0 }} 100"
+                pathLength="100" transform="rotate(-90 65 65)"/>
+            </svg>
+            <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column;">
+              <b style="font-size:1.5rem; font-family:var(--font-head);">{{ scan.confidence }}%</b>
+              <span style="font-size:0.7rem; color:var(--text-dim);">fake likelihood</span>
+            </div>
+          </div>
+          <div style="flex:1; min-width:220px;">
+            <h3 style="margin-top:0;">Why this verdict?</h3>
+            <p>{{ scan.explanation }}</p>
+            <p style="font-size:0.78rem;">Model used: <strong>{{ scan.model_used }}</strong></p>
+            <p style="font-size:0.78rem;">Processing time: {{ scan.processing_time_ms|default:"-" }} ms</p>
+          </div>
+        </div>
+
+        {% if scan.signal_breakdown %}
+        <h3>Signal Breakdown</h3>
+        <table class="scan-table" style="margin-bottom:18px;">
+          <thead><tr><th>Signal</th><th>Score</th></tr></thead>
+          <tbody>
+            {% for key, value in scan.signal_breakdown.items %}
+              <tr>
+                <td>{{ key|title }}</td>
+                <td>{% if value == None %}Not applicable{% else %}{{ value }}%{% endif %}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+
+        {% if scan.ensemble_results %}
+        <h3>Model Comparison</h3>
+        <table class="scan-table" style="margin-bottom:10px;">
+          <thead><tr><th>Model</th><th>Verdict</th><th>Confidence</th></tr></thead>
+          <tbody>
+            {% for r in scan.ensemble_results %}
+            <tr>
+              <td>{{ r.model }}</td>
+              <td><span class="badge badge-{{ r.verdict }}">{{ r.verdict }}</span></td>
+              <td>{{ r.confidence }}%</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+
+        <div class="panel" style="margin-top:20px; padding:16px;">
+          <strong>Model Info</strong>
+          <p style="margin-bottom:0;">TruthLens reports probabilistic forensic signals for human review. It is not a certified determination of truth, identity, intent, or legal authenticity.</p>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-top:22px; flex-wrap:wrap;">
+          <a href="{% url 'reports:download_report' scan.id %}" class="btn btn-primary" download>Download PDF Report</a>
+          <a href="{% url 'detection:scan_upload' %}" class="btn btn-ghost">Scan Another</a>
+          <form method="post" action="{% url 'detection:delete_scan' scan.id %}" onsubmit="return confirm('Delete this scan and its history record?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-ghost">Delete</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="panel card" style="margin-top:20px;">
+        <h3 style="margin-top:0;">Think this result is wrong?</h3>
+        <form method="post" action="{% url 'detection:submit_feedback' scan.id %}">
+          {% csrf_token %}
+          <textarea name="comment" rows="3" placeholder="Tell us what looks off about this verdict..."
+            style="width:100%; padding:12px; border-radius:10px; border:1px solid var(--panel-border); background:rgba(255,255,255,0.03); color:var(--text);"></textarea>
+          <button type="submit" class="btn btn-ghost btn-sm" style="margin-top:10px;">Flag this result</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Scan Media - TruthLens{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/home.css' %}">{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width:720px;">
+    <div class="section-head" style="margin-bottom:24px;">
+      <span class="eyebrow">New Scan</span>
+      <h2>What are you checking?</h2>
+    </div>
+
+    <div class="modality-tabs">
+      <button type="button" class="modality-tab active" data-media-type="video" data-accept="video/*">Video</button>
+      <button type="button" class="modality-tab" data-media-type="image" data-accept="image/*">Image</button>
+      <button type="button" class="modality-tab" data-media-type="audio" data-accept="audio/*">Audio</button>
+    </div>
+
+    <div class="panel card glow-border">
+      <form id="scan-form" method="post" enctype="multipart/form-data" action="{% url 'detection:scan_upload' %}">
+        {% csrf_token %}
+        {% if form.errors %}
+          <div class="badge badge-fake" style="display:block; margin-bottom:14px; white-space:normal;">
+            {{ form.errors }}
+          </div>
+        {% endif %}
+        <input type="hidden" name="media_type" id="media_type_input" value="video">
+        <div class="upload-drop" id="upload-drop">
+          <div class="icon">Upload</div>
+          <p style="margin:0; color:var(--text);"><strong>Drag and drop</strong> your file here</p>
+          <p style="margin:4px 0 0;">or click to browse</p>
+          <p style="margin:6px 0 0; font-size:0.78rem;">Server verifies file signatures and upload size before analysis.</p>
+          <p id="file-name-label" style="margin-top:10px; color:var(--accent); font-weight:600;"></p>
+        </div>
+        <input type="file" id="file-input" name="file" style="display:none;" required>
+
+        <div style="margin-top:18px;">
+          <label class="helptext" style="display:block; margin-bottom:8px; color:var(--text-dim);">Model mode</label>
+          <select name="model_choice" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid var(--panel-border); background:rgba(255,255,255,0.03); color:var(--text);">
+            <option value="ensemble" selected>Ensemble forensic signals</option>
+            <option value="single">Fastest single model</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="margin-top:22px;">Run Detection</button>
+        <progress id="upload-progress" value="0" max="100" style="display:none; width:100%; margin-top:14px;"></progress>
+      </form>
+    </div>
+
+    <div class="panel card" style="margin-top:20px;">
+      <h3 style="margin-top:0;">Or scan from a URL</h3>
+      <form method="post" action="{% url 'detection:scan_from_url' %}" style="display:flex; gap:10px; flex-wrap:wrap;">
+        {% csrf_token %}
+        <input type="hidden" name="media_type" value="video">
+        <input type="url" name="source_url" placeholder="https://example.com/video.mp4" required
+          style="flex:1; min-width:240px; padding:11px 14px; border-radius:10px; border:1px solid var(--panel-border); background:rgba(255,255,255,0.03); color:var(--text);">
+        <button type="submit" class="btn btn-ghost">Analyze URL</button>
+      </form>
+    </div>
+
+    <p style="margin-top:18px; font-size:0.8rem;">Prefer bulk analysis or programmatic access? Check the <a href="/api/docs/">Developer API</a>.</p>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/upload.js' %}"></script>{% endblock %}

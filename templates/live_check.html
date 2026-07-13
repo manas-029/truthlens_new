@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Live Check — TruthLens{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width:640px;">
+    <div class="section-head" style="margin-bottom:24px;">
+      <span class="eyebrow">Real-time</span>
+      <h2>Live Webcam Check</h2>
+      <p>Get a rolling authenticity read during a call — useful for spotting real-time face-swap or voice-clone attempts.</p>
+    </div>
+    <div class="panel card glow-border text-center">
+      <video id="live-video" autoplay muted playsinline style="width:100%; border-radius:12px; background:#000; max-height:360px;"></video>
+      <div style="display:flex; justify-content:center; gap:20px; align-items:center; margin-top:18px; flex-wrap:wrap;">
+        <button id="live-start-btn" class="btn btn-primary">Start Live Check</button>
+        <span id="live-status" class="badge badge-uncertain">Idle</span>
+        <div><b id="live-score" style="font-size:1.4rem; font-family:var(--font-head);">--</b><span style="color:var(--text-dim); font-size:0.8rem;"> fake-likelihood</span></div>
+      </div>
+      <p style="margin-top:16px; font-size:0.78rem;">Your video is processed locally / on our servers only for scoring and is never stored.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/webcam-live.js' %}"></script>{% endblock %}

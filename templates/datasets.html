@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Datasets — TruthLens{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Transparency</span>
+      <h2>Datasets behind deepfake detection research</h2>
+      <p>TruthLens's underlying architecture is benchmarked on the Inclusion-Global Multimedia Deepfake Challenge dataset. Here's the broader landscape of datasets the field relies on.</p>
+    </div>
+    <div class="grid grid-2">
+      {% for d in datasets %}
+      <div class="panel card">
+        <h3 style="margin-top:0;">{{ d.name }}</h3>
+        <p style="font-size:0.8rem; color:var(--accent); margin-bottom:10px;">{{ d.org }}</p>
+        <p>{{ d.description }}</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+          {% for m in d.modalities %}<span class="badge badge-uncertain">{{ m }}</span>{% endfor %}
+        </div>
+        <p style="margin-top:10px; font-size:0.8rem;"><strong>Scale:</strong> {{ d.size }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

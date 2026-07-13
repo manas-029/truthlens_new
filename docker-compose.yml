@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: truthlens
+      POSTGRES_USER: truthlens
+      POSTGRES_PASSWORD: truthlens
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+
+  web:
+    build: .
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+      - media_storage:/app/media_storage
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://truthlens:truthlens@db:5432/truthlens
+      REDIS_URL: redis://redis:6379/0
+      CELERY_TASK_ALWAYS_EAGER: "False"
+      MEDIA_ROOT: /app/media_storage
+    depends_on:
+      - db
+      - redis
+
+  worker:
+    build: .
+    command: celery -A truthlens worker -l info
+    volumes:
+      - .:/app
+      - media_storage:/app/media_storage
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://truthlens:truthlens@db:5432/truthlens
+      REDIS_URL: redis://redis:6379/0
+      CELERY_TASK_ALWAYS_EAGER: "False"
+      MEDIA_ROOT: /app/media_storage
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  pgdata:
+  media_storage:

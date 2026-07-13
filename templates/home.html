@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<section class="section hero">
+  <div class="container hero-grid">
+    <div class="fade-up">
+      <span class="eyebrow">Multimodal AI Forensics</span>
+      <h1>See through the <span>fake</span>, in seconds.</h1>
+      <p class="lead">TruthLens analyzes images, video, and audio with fused visual-temporal and audio-spectral AI models — then explains exactly why something looks synthetic.</p>
+      <div class="hero-cta">
+        <a href="{% url 'detection:scan_upload' %}" class="btn btn-primary">Scan Media Now</a>
+        <a href="{% url 'knowledge_base:models' %}" class="btn btn-ghost">See the Models</a>
+      </div>
+      <div class="stat-strip">
+        <div class="stat"><b data-count-to="{{ stats.total_scans }}">0</b><span>Scans performed</span></div>
+        <div class="stat"><b data-count-to="{{ stats.accuracy }}">0</b><span>% benchmark accuracy</span></div>
+        <div class="stat"><b data-count-to="{{ stats.fake_detected }}">0</b><span>Fakes flagged</span></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="scan-line"></div>
+      <div class="face-frame">
+        <svg width="220" height="220" viewBox="0 0 220 220" fill="none">
+          <circle cx="110" cy="110" r="95" stroke="#00e5ff" stroke-opacity="0.35" stroke-width="1.5"/>
+          <circle cx="110" cy="110" r="70" stroke="#00e5ff" stroke-opacity="0.25" stroke-width="1"/>
+          <circle cx="90" cy="95" r="4" fill="#00e5ff"/>
+          <circle cx="130" cy="95" r="4" fill="#00e5ff"/>
+          <path d="M85 135 Q110 150 135 135" stroke="#00e5ff" stroke-width="2" fill="none"/>
+          <rect x="60" y="60" width="100" height="100" rx="14" stroke="#7b5cff" stroke-opacity="0.4" stroke-dasharray="4 6"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Upload anything</span>
+      <h2>One scanner, three modalities</h2>
+      <p>Drop a file below to start — TruthLens automatically routes it through the right detection pipeline.</p>
+    </div>
+    <div class="panel card glow-border" style="max-width:640px; margin:0 auto;">
+      <div class="upload-drop" onclick="window.location.href='{% url 'detection:scan_upload' %}'">
+        <div class="icon">📤</div>
+        <p style="margin:0; color:var(--text);"><strong>Drag &amp; drop</strong> an image, video, or audio file</p>
+        <p style="margin:4px 0 0;">or click to browse — JPG, PNG, MP4, MOV, WAV, MP3 supported</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Why TruthLens</span>
+      <h2>Built on peer-reviewed multimodal research — and extended further</h2>
+    </div>
+    <div class="grid grid-3">
+      <div class="panel card feature-card">
+        <div class="icon-badge">🎯</div>
+        <h3>Multimodal fusion</h3>
+        <p>A Vision Transformer with temporal self-attention analyzes cross-frame dynamics, fused with a ResNet18 Mel-spectrogram audio encoder — the same architecture that scored 99.34% accuracy on the Inclusion-Global Deepfake Challenge.</p>
+      </div>
+      <div class="panel card feature-card">
+        <div class="icon-badge">🧠</div>
+        <h3>Explainable verdicts</h3>
+        <p>Every result includes a plain-language explanation and a heatmap overlay showing exactly which regions or time segments triggered the score — not just a black-box label.</p>
+      </div>
+      <div class="panel card feature-card">
+        <div class="icon-badge">🖼️</div>
+        <h3>Images &amp; audio too</h3>
+        <p>Unlike video-only detectors, TruthLens has dedicated pipelines for single images and standalone audio — useful for voice-cloning scams and manipulated photos.</p>
+      </div>
+      <div class="panel card feature-card">
+        <div class="icon-badge">⚖️</div>
+        <h3>Model ensemble mode</h3>
+        <p>Run multiple architectures side by side — ViT, XceptionNet, EfficientNet, frequency-domain nets — and see an ensemble consensus score.</p>
+      </div>
+      <div class="panel card feature-card">
+        <div class="icon-badge">📡</div>
+        <h3>Live webcam check</h3>
+        <p>Get a near-real-time authenticity read during video calls, sampled every few seconds directly from your camera.</p>
+      </div>
+      <div class="panel card feature-card">
+        <div class="icon-badge">🔌</div>
+        <h3>Developer API</h3>
+        <p>Programmatic access with API keys, Swagger docs, and rate-limited endpoints for bulk or automated analysis.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">How it works</span>
+      <h2>From upload to verdict in three steps</h2>
+    </div>
+    <div class="grid grid-3">
+      <div class="panel card">
+        <div class="timeline-step">
+          <div class="num">1</div>
+          <div><h3>Upload or paste a link</h3><p>Drop a file, paste a video URL, or start a live webcam session.</p></div>
+        </div>
+      </div>
+      <div class="panel card">
+        <div class="timeline-step">
+          <div class="num">2</div>
+          <div><h3>Multimodal analysis</h3><p>Visual, temporal, and audio models run in parallel and fuse their signals into one confidence score.</p></div>
+        </div>
+      </div>
+      <div class="panel card">
+        <div class="timeline-step">
+          <div class="num">3</div>
+          <div><h3>Explained verdict + report</h3><p>Get a real/fake/uncertain call, a heatmap explanation, and a downloadable PDF report.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}<script src="{% static 'js/counters.js' %}"></script>{% endblock %}

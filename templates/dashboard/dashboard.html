@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dashboard - TruthLens{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="dash-header">
+      <div>
+        <span class="eyebrow">Your account</span>
+        <h2 style="margin-top:6px;">Scan History</h2>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="{% url 'dashboard:export_csv' %}" class="btn btn-ghost">Export CSV</a>
+        <a href="{% url 'detection:scan_upload' %}" class="btn btn-primary">New Scan</a>
+      </div>
+    </div>
+
+    <div class="grid grid-4" style="margin-bottom:24px;">
+      <div class="panel stat-tile"><b>{{ total }}</b><span>Filtered scans</span></div>
+      <div class="panel stat-tile"><b style="color:var(--fake);">{{ fake_count }}</b><span>Flagged fake</span></div>
+      <div class="panel stat-tile"><b style="color:var(--real);">{{ real_count }}</b><span>Verified real</span></div>
+      <div class="panel stat-tile"><b style="color:var(--warn);">{{ avg_processing_seconds }}s</b><span>Avg processing</span></div>
+    </div>
+
+    <div class="grid grid-2" style="margin-bottom:24px;">
+      <div class="panel chart-wrap">
+        <canvas id="verdictChart" data-values="[{{ fake_count }},{{ real_count }},{{ uncertain_count }}]"></canvas>
+      </div>
+      <div class="panel chart-wrap">
+        <canvas id="timelineChart" data-labels='{{ timeline_labels|safe }}' data-values='{{ timeline_values|safe }}'></canvas>
+      </div>
+    </div>
+
+    <div class="panel card" style="margin-bottom:18px;">
+      <form method="get" style="display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:10px; align-items:end;">
+        <input type="search" name="q" value="{{ filters.q }}" placeholder="Search filename"
+          style="padding:11px 14px; border-radius:8px; border:1px solid var(--panel-border); background:rgba(255,255,255,0.03); color:var(--text);">
+        <select name="verdict" style="padding:11px 14px; border-radius:8px; border:1px solid var(--panel-border); background:rgba(255,255,255,0.03); color:var(--text);">
+          <option value="">Any verdict</option>
+          <option value="fake" {% if filters.verdict == "fake" %}selected{% endif %}>Fake</option>
+          <option value="real" {% if filters.verdict == "real" %}selected{% endif %}>Real</option>
+          <option value="uncertain" {% if filters.verdict == "uncertain" %}selected{% endif %}>Uncertain</option>
+        </select>
+        <select name="media_type" style="padding:11px 14px; border-radius:8px; border:1px solid var(--panel-border); background:rgba(255,255,255,0.03); color:var(--text);">
+          <option value="">Any media</option>
+          <option value="video" {% if filters.media_type == "video" %}selected{% endif %}>Video</option>
+          <option value="image" {% if filters.media_type == "image" %}selected{% endif %}>Image</option>
+          <option value="audio" {% if filters.media_type == "audio" %}selected{% endif %}>Audio</option>
+        </select>
+        <button type="submit" class="btn btn-ghost">Filter</button>
+      </form>
+    </div>
+
+    <div class="panel card">
+      <form method="post" action="{% url 'dashboard:bulk_delete' %}" onsubmit="return confirm('Delete selected scan records?');">
+        {% csrf_token %}
+        <table class="scan-table">
+          <thead><tr><th></th><th>Date</th><th>File</th><th>Type</th><th>Verdict</th><th>Confidence</th><th>Model</th><th></th></tr></thead>
+          <tbody>
+            {% for scan in scans %}
+            <tr>
+              <td><input type="checkbox" name="scan_ids" value="{{ scan.id }}"></td>
+              <td>{{ scan.created_at|date:"M d, H:i" }}</td>
+              <td>{{ scan.original_filename }}</td>
+              <td>{{ scan.get_media_type_display }}</td>
+              <td>{% if scan.verdict %}<span class="badge badge-{{ scan.verdict }}">{{ scan.verdict }}</span>{% else %}<span class="badge badge-uncertain">{{ scan.get_status_display }}</span>{% endif %}</td>
+              <td>{{ scan.confidence|default:"-" }}{% if scan.confidence %}%{% endif %}</td>
+              <td>{{ scan.model_used }}</td>
+              <td><a href="{% url 'detection:scan_result' scan.id %}" class="btn btn-ghost btn-sm">View</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" style="text-align:center; padding:30px;">No scans yet. <a href="{% url 'detection:scan_upload' %}">Run your first one</a>.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:16px; flex-wrap:wrap;">
+          <button type="submit" class="btn btn-ghost btn-sm">Delete Selected</button>
+          <div>
+            {% if page_obj.has_previous %}<a class="btn btn-ghost btn-sm" href="?page={{ page_obj.previous_page_number }}">Previous</a>{% endif %}
+            <span style="font-size:0.82rem;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}<a class="btn btn-ghost btn-sm" href="?page={{ page_obj.next_page_number }}">Next</a>{% endif %}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="{% static 'js/chart-dashboard.js' %}"></script>
+{% endblock %}

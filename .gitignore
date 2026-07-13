@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+db.sqlite3
+media/uploads/
+media/heatmaps/
+staticfiles/
+.env
+*.egg-info/
+venv/
+.DS_Store
+detection/ml_models/weights/*.pth

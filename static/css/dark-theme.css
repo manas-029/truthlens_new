@@ -1,0 +1,6 @@
+/* Light-theme overrides layer on top of base.css :root variables under [data-theme="light"].
+   This file holds any additional component tweaks needed only in light mode. */
+[data-theme="light"] .hero-visual { border-color: rgba(0,150,170,0.25); }
+[data-theme="light"] .badge-fake { color: #c0243f; }
+[data-theme="light"] .badge-real { color: #0f8f63; }
+[data-theme="light"] .toast { color: var(--text); }
